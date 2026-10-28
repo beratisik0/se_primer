@@ -123,5 +123,4 @@ npm run test:open
 ## 🔗 Teslim Linkleri
 - **GitHub Deposu:** `https://github.com/beratisik0/se_primer`
 - **AI Studio / Web Uygulama Linki:** `http://localhost:5173` (veya Vercel/Firebase canlı linki)
-- **YouTube Tanıtım Videosu (Ekran Kaydı):** [`se_primer_tanitim_videosu.mp4`](./se_primer_tanitim_videosu.mp4)
-- **YouTube Video Linki:** *(YouTube'a yüklendikten sonra buraya link eklenecek)*
+- **YouTube Tanıtım Videosu:** [YouTube İzle](https://www.youtube.com/watch?v=veszuU-uWsY) (`se_primer_tanitim_videosu.mp4`)
