@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SE Primer · Yazılım Mühendisliği Kriz Simülasyonu</title>
+  <meta name="description" content="Kişiye uyum sağlayan interaktif Sokratik yazılım mühendisliği kriz simülasyonu. Oyuncu karar verir, uygulama teknik sonucunu gösterir.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Mobil Cihaz Çerçevesi (Masaüstünde şık telefon, mobilde tam ekran) -->
+    <div class="mobile-viewport" id="mobileViewport">
+      
+      <!-- Üst Durum Çubuğu -->
+      <header class="app-header">
+        <div class="status-brand">
+          <span class="status-dot pulsating"></span>
+          <span class="brand-title">SE PRIMER</span>
+          <span class="crisis-badge" id="headerCrisisBadge">08:00 KRİZİ</span>
+        </div>
+        <div class="header-actions">
+          <button id="toggleSettingsBtn" class="icon-btn" title="AI Studio API Ayarları">⚙️</button>
+        </div>
+      </header>
+
+      <!-- Ekran 1: Onboarding (3 Soru: Seviye, Rol, Hedef) -->
+      <section class="screen active" id="screenOnboarding">
+        <div class="screen-content">
+          <div class="hero-badge">YZM301 · VAKA SİMÜLATÖRÜ</div>
+          <h1 class="main-title">“08:00, randevu sistemi çöktü. Nöbetçi sensin.”</h1>
+          <p class="subtitle">Dün gece yeni sürüm canlıya alındı. 300 hasta kapıda bekliyor. Kararlarını ver, teknik sonuçlarıyla yüzleş.</p>
+
+          <form id="onboardingForm" class="onboarding-form">
+            <!-- Soru 1: Seviye -->
+            <div class="form-group">
+              <label class="group-label">
+                <span class="step-num">1</span> Deneyim Seviyen Nedir?
+              </label>
+              <div class="card-selector">
+                <label class="selector-card active" data-name="level" data-val="junior">
+                  <input type="radio" name="level" value="junior" checked>
+                  <div class="card-icon">🌱</div>
+                  <div class="card-text">
+                    <span class="card-title">Yeni Başladım</span>
+                    <span class="card-desc">Sokratik AI Tutor her kararda açık, rehberlik desteği.</span>
+                  </div>
+                </label>
+                <label class="selector-card" data-name="level" data-val="senior">
+                  <input type="radio" name="level" value="senior">
+                  <div class="card-icon">🔥</div>
+                  <div class="card-text">
+                    <span class="card-title">Deneyimliyim</span>
+                    <span class="card-desc">60 saniye kriz sayacı baskısı, doğrudan log odaklı.</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Soru 2: Rol -->
+            <div class="form-group">
+              <label class="group-label">
+                <span class="step-num">2</span> Uzmanlık Rolün Nedir?
+              </label>
+              <div class="chip-selector">
+                <label class="chip-item active">
+                  <input type="radio" name="role" value="backend" checked>
+                  <span>⚙️ Backend</span>
+                </label>
+                <label class="chip-item">
+                  <input type="radio" name="role" value="devops">
+                  <span>☁️ DevOps / SRE</span>
+                </label>
+                <label class="chip-item">
+                  <input type="radio" name="role" value="frontend">
+                  <span>🎨 Frontend</span>
+                </label>
+                <label class="chip-item">
+                  <input type="radio" name="role" value="fullstack">
+                  <span>🧩 Fullstack</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Soru 3: Hedef -->
+            <div class="form-group">
+              <label class="group-label">
+                <span class="step-num">3</span> Bu Krizdeki Birincil Hedefin?
+              </label>
+              <div class="chip-selector">
+                <label class="chip-item active">
+                  <input type="radio" name="goal" value="uptime" checked>
+                  <span>⏱️ Hızlı Çözüm & Uptime</span>
+                </label>
+                <label class="chip-item">
+                  <input type="radio" name="goal" value="security">
+                  <span>🛡️ Veri Güvenliği & KVKK</span>
+                </label>
+                <label class="chip-item">
+                  <input type="radio" name="goal" value="quality">
+                  <span>💎 Sıfır Hata & Kalite</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Dinamik Anlatı Uyarısı -->
+            <div class="narrative-preview" id="narrativePreview">
+              <span class="preview-icon">ℹ️</span>
+              <span class="preview-text" id="previewText">Seçimlerine göre simülasyon dinamik olarak uyarlanıyor...</span>
+            </div>
+
+            <button type="submit" id="startCrisisBtn" class="btn primary-btn btn-glow">
+              🚨 Krize Müdahale Et
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Ekran 2: Kriz Sahnesi & Karar Döngüsü -->
+      <section class="screen" id="screenStage">
+        <!-- Acil Durum Gösterge Paneli -->
+        <div class="crisis-hud">
+          <div class="hud-item timer-box" id="hudTimerBox">
+            <span class="hud-label">SÜRE</span>
+            <span class="hud-value" id="hudTimerValue">--:--</span>
+          </div>
+          <div class="hud-item metric-box">
+            <span class="hud-label">BEKLEYEN HASTA</span>
+            <span class="hud-value alert-text" id="hudPatientCount">300</span>
+          </div>
+          <div class="hud-item step-box">
+            <span class="hud-label">AŞAMA</span>
+            <span class="hud-value" id="hudStepValue">1 / 3</span>
+          </div>
+        </div>
+
+        <!-- Terminal Canlı Log Konsolu -->
+        <div class="terminal-card">
+          <div class="terminal-bar">
+            <span class="term-dots"><i></i><i></i><i></i></span>
+            <span class="term-title">prod-hospital-api · live-tail</span>
+            <span class="term-live">CANLI</span>
+          </div>
+          <div class="terminal-body" id="terminalLogs">
+            <!-- Dinamik log satırları buraya basılır -->
+          </div>
+        </div>
+
+        <!-- Karar Kartı -->
+        <div class="decision-card" id="decisionCard">
+          <div class="decision-header">
+            <span class="decision-step-badge" id="decisionCategoryBadge">KARAR 1 · MİMARİ</span>
+            <h2 class="decision-title" id="decisionTitle">Randevu sunucusu 500 dönüyor. Sistem nasıl kurtarılacak?</h2>
+            <p class="decision-context" id="decisionContext">Dün gece 02:00'de v2.4.0 yayına alındı. Hastalar randevu alamıyor.</p>
+          </div>
+
+          <!-- Seçenekler -->
+          <div class="options-container" id="optionsContainer">
+            <button class="option-btn" id="optionBtnA" data-choice="A">
+              <span class="option-tag">A</span>
+              <div class="option-content">
+                <strong class="opt-label" id="optLabelA">Eski sürüme geri dön (Rollback)</strong>
+                <span class="opt-sub" id="optSubA">v2.3.9 kararlı sürümüne dön</span>
+              </div>
+            </button>
+
+            <button class="option-btn" id="optionBtnB" data-choice="B">
+              <span class="option-tag">B</span>
+              <div class="option-content">
+                <strong class="opt-label" id="optLabelB">Canlıda yama yap (Hotfix in prod)</strong>
+                <span class="opt-sub" id="optSubB">Kodu canlı pod'da düzelt ve yeniden başlat</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Ne Oldu, Neden Oldu (Teknik Sonuç Paneli) -->
+          <div class="tech-feedback-panel" id="techFeedbackPanel">
+            <div class="feedback-badge" id="feedbackBadge">⚙️ TEKNİK SONUÇ</div>
+            <h3 class="feedback-heading" id="feedbackHeading">Seçiminin Sonucu</h3>
+            <div class="feedback-body">
+              <p><strong>Ne Oldu?</strong> <span id="feedbackWhat">Teknik olay akışı...</span></p>
+              <p><strong>Neden Oldu?</strong> <span id="feedbackWhy">Mimari ve altyapısal gerekçe...</span></p>
+            </div>
+            <button class="btn secondary-btn" id="nextDecisionBtn">
+              Sonraki Karara Geç ➔
+            </button>
+          </div>
+        </div>
+
+        <!-- Sokratik AI Tutor Kartı -->
+        <div class="tutor-card" id="tutorCard">
+          <div class="tutor-header">
+            <div class="tutor-title-box">
+              <span class="tutor-avatar">🤖</span>
+              <div>
+                <strong class="tutor-name">Sokratik AI Tutor</strong>
+                <span class="tutor-sub">Cevabı söylemez, teknik düşünmeye sevk eder</span>
+              </div>
+            </div>
+            <button class="tutor-toggle-btn" id="tutorToggleBtn" title="Aç/Kapat">−</button>
+          </div>
+
+          <div class="tutor-body" id="tutorBody">
+            <div class="tutor-bubble" id="tutorBubble">
+              <p id="tutorQuestion">"Geri dönmeden önce veritabanı şemasının değişip değişmediğini nasıl anlarsın?"</p>
+            </div>
+
+            <!-- Tutor Soru Sorma / İpucu Alanı -->
+            <div class="tutor-interactive">
+              <div class="tutor-input-row">
+                <input type="text" id="tutorUserInput" class="tutor-input" placeholder="Tutor'a sor: 'Rollback yaparsam ne olur?'">
+                <button id="tutorSendBtn" class="tutor-send-btn" title="Gönder">➤</button>
+              </div>
+              <div class="tutor-quick-prompts">
+                <button class="quick-chip" data-query="Eski sürüme dönersem risk ne?">💡 Rollback riski?</button>
+                <button class="quick-chip" data-query="Canlıda yama yapmak doğru mu?">⚠️ Hotfix tehlikesi?</button>
+                <button class="quick-chip" data-query="Hangisini seçmeliyim?">🎯 Hangisi doğru?</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ekran 3: Sonuç / Post-Mortem Ekranı -->
+      <section class="screen" id="screenResult">
+        <div class="screen-content">
+          <div class="result-header">
+            <div class="result-icon-badge" id="resultIcon">🛡️</div>
+            <span class="result-tag" id="resultTag">POST-MORTEM RAPORU</span>
+            <h1 class="result-title" id="resultTitle">08:25 · SİSTEM AYAKTA, VERİ GÜVENDE</h1>
+            <p class="result-desc" id="resultDesc">
+              Kriz başarıyla yönetildi. Sağlık sistemleri kararlı duruma ulaştı.
+            </p>
+          </div>
+
+          <!-- Skor ve Metrikler -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="m-label">Çözüm Saati</span>
+              <span class="m-val" id="metricTime">08:25</span>
+            </div>
+            <div class="metric-card">
+              <span class="m-label">Veri Bütünlüğü</span>
+              <span class="m-val" id="metricDataSafe">Korumada (%100)</span>
+            </div>
+            <div class="metric-card">
+              <span class="m-label">KVKK Uyum</span>
+              <span class="m-val" id="metricKvkk">İhlal Yok (0)</span>
+            </div>
+            <div class="metric-card">
+              <span class="m-label">Sokratik Notu</span>
+              <span class="m-val" id="metricScore">95 / 100</span>
+            </div>
+          </div>
+
+          <!-- Post-Mortem Teknik Rapor Kartı -->
+          <div class="postmortem-card">
+            <h3>📋 Olay İnceleme Tutanağı (Post-Mortem)</h3>
+            <div class="timeline-log" id="resultTimeline">
+              <!-- Oyuncunun kararları ve teknik sonuçları listelenir -->
+            </div>
+            <div class="tutor-closing-verdict" id="tutorClosingVerdict">
+              <strong>🤖 AI Tutor Nihai Yorumu:</strong>
+              <p id="tutorVerdictText">Harika bir mühendislik disiplini sergiledin.</p>
+            </div>
+          </div>
+
+          <!-- Yeniden Başlat Butonu -->
+          <div class="result-actions">
+            <button class="btn primary-btn btn-glow" id="restartGameBtn">
+              🔄 Yeniden Başla (Farklı Bir Yol Dene)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Google AI Studio / Gemini Ayarları Modalı -->
+      <div class="modal-overlay" id="settingsModal">
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>⚙️ AI Tutor & Entegrasyon Ayarları</h3>
+            <button class="close-btn" id="closeSettingsBtn">✕</button>
+          </div>
+          <div class="modal-body">
+            <p class="modal-desc">
+              SE Primer yerleşik akıllı Sokratik motora sahiptir. Dilerseniz canlı Google AI Studio (Gemini) API anahtarınızı girerek doğrudan Gemini modelini de çalıştırabilirsiniz.
+            </p>
+            <div class="form-group">
+              <label for="geminiApiKey">Google AI Studio API Key (Opsiyonel):</label>
+              <input type="password" id="geminiApiKey" class="text-input" placeholder="AIzaSy...">
+              <small class="field-hint">Anahtar yalnızca tarayıcınızın yerel hafızasında saklanır.</small>
+            </div>
+            <div class="form-group">
+              <label for="geminiModelSelect">Gemini Modeli:</label>
+              <select id="geminiModelSelect" class="text-input">
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Önerilen & Hızlı)</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Daha Derin Muhakeme)</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn secondary-btn" id="saveSettingsBtn">Kaydet ve Kapat</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
